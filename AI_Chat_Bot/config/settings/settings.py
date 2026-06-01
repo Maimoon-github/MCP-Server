@@ -18,12 +18,12 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
-    'apps.mcp_server',
+    'apps.stateless',
 ]
 
 # STATELESS CORE: No SessionMiddleware, no AuthenticationMiddleware, no CsrfViewMiddleware
 MIDDLEWARE = [
-    'apps.mcp_server.middleware.MCPStatelessMiddleware',
+    'apps.stateless.middleware.MCPStatelessMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
