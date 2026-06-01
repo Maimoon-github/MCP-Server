@@ -206,6 +206,38 @@ def handle_search_web(params: dict, meta: dict, request) -> dict:
     }
 
 
+@registry.register('tools/web_search')
+def handle_web_search_legacy(params: dict, meta: dict, request) -> dict:
+    """Backward compatibility alias for search_web."""
+    return handle_search_web(params, meta, request)
+
+
+@registry.register('tools/call')
+def handle_tools_call(params: dict, meta: dict, request) -> dict:
+    """
+    Legacy tools/call compatibility handler.
+    Routes to the correct tool based on name parameter.
+    """
+    tool_name = params.get('name', '')
+    arguments = params.get('arguments', {})
+    
+    # Map legacy tool names to registry names
+    name_map = {
+        'web_search': 'search_web',
+        'get_latest_updates': 'search_web',  # or create a dedicated handler
+    }
+    
+    mapped_name = name_map.get(tool_name, tool_name)
+    direct_method = f"tools/{mapped_name}"
+    
+    handler = registry._handlers.get(direct_method)
+    if not handler:
+        raise MCPError(-32601, f"Tool not found: {tool_name}")
+    
+    # Call the handler with the arguments as params
+    return handler({'arguments': arguments}, meta, request)
+
+
 @registry.register('tools/fetch_url')
 def handle_fetch_url(params: dict, meta: dict, request) -> dict:
     """Fetch URL content via HTTP."""
@@ -556,6 +588,9 @@ class MCPStatelessEndpoint(View):
 
     def post(self, request, *args, **kwargs) -> JsonResponse:
         """Handle JSON-RPC POST requests."""
+        # DEBUG bypass: skip auth entirely in development
+        debug_bypass = settings.DEBUG
+
         # Parse JSON-RPC body
         try:
             body = json.loads(request.body.decode('utf-8'))
@@ -581,7 +616,7 @@ class MCPStatelessEndpoint(View):
             )
 
         # Stateless Authentication
-        if not self.auth_provider.authenticate(request):
+        if not debug_bypass and not self.auth_provider.authenticate(request):
             return self._error_response(-32002, "Unauthorized", rpc_id)
 
         # Registry-driven dispatch
