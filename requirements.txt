@@ -1,2 +1,8 @@
 Django>=4.2,<5.0
-djangorestframework>=3.14.0
+requests>=2.28.0
+
+# Optional: for real DuckDuckGo web search
+duckduckgo-search>=3.0.0
+
+# Optional: for production WSGI server
+gunicorn>=21.0.0
