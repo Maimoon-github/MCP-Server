@@ -23,7 +23,7 @@ INSTALLED_APPS = [
 
 # STATELESS CORE: No SessionMiddleware, no AuthenticationMiddleware, no CsrfViewMiddleware
 MIDDLEWARE = [
-    'apps.mcp_server.middleware.MCPProtocolMiddleware',
+    'apps.mcp_server.middleware.MCPStatelessMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
