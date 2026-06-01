@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'apps.mcp',
     'rest_framework',
     'stateless_app',
+    's2c_app',
 ]
 
 MIDDLEWARE = [
@@ -52,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 's2c_project.urls'
 
 TEMPLATES = [
     {
@@ -117,6 +118,18 @@ REST_FRAMEWORK = {
         'anon': '100/minute',
         'user': '1000/minute',
     },
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        's2c_app.auth.APIKeyAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ],
 }
 
 # Password validation
@@ -159,5 +172,13 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 # API Key for demo (in production, use env vars / DB)
 STATELESS_API_KEY = "sk-live-demo-key-change-me"
+
+# requestState signing secret (in production, use strong env var)
+REQUEST_STATE_SECRET = "s2c-request-state-secret-key-2026"
+REQUEST_STATE_ALGORITHM = "HS256"
+
+# Max elicitation rounds before giving up
+MAX_ELICITATION_ROUNDS = 5

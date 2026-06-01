@@ -20,4 +20,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('api/', include('stateless_app.urls')),
+    path('api/', include('s2c_app.urls')),
 ]
