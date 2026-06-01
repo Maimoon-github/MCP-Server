@@ -1,96 +1,91 @@
 """
-Django settings for MCP 2026 Stateless Server.
+Stateless Django Settings for MCP 2026-07-28 Server.
+NO sessions. NO session middleware. NO CSRF for API.
 """
-from pathlib import Path
+
 import os
+from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'mcp-stateless-dev-key-change-in-production')
-
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
-
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'stateless-mcp-2026-secret')
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 ALLOWED_HOSTS = ['*']
 
-# ═══════════════════════════════════════════════════
-# INSTALLED APPS
-# ═══════════════════════════════════════════════════
+# ───────────────────────────────────────────────
+# STATELESS CORE: Minimal apps, NO sessions, NO messages, NO admin
+# ───────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
-    'mcp_server',
+    'apps.mcp_server',
 ]
 
-# ═══════════════════════════════════════════════════
-# MIDDLEWARE — NO SESSION MIDDLEWARE
-# ═══════════════════════════════════════════════════
+# STATELESS CORE: No SessionMiddleware, no AuthenticationMiddleware, no CsrfViewMiddleware
 MIDDLEWARE = [
-    'mcp_server.middleware.MCPProtocolMiddleware',
+    'apps.mcp_server.middleware.MCPProtocolMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Explicitly remove session middleware
-SESSION_ENGINE = None
+ROOT_URLCONF = 'config.urls'
+WSGI_APPLICATION = 'config.wsgi.application'
 
-ROOT_URLCONF = 'mcp_server.urls'
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+            ],
+        },
+    },
+]
 
-# ═══════════════════════════════════════════════════
-# DATABASE — Shared storage for Tasks extension
-# ═══════════════════════════════════════════════════
+# Shared database for tasks/resources only — NOT for session storage
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'stateless_shared.sqlite3',
     }
 }
 
-# ═══════════════════════════════════════════════════
-# INTERNATIONALIZATION
-# ═══════════════════════════════════════════════════
+# EXPLICITLY DISABLE SESSIONS
+SESSION_ENGINE = None
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-
-# ═══════════════════════════════════════════════════
-# STATIC FILES
-# ═══════════════════════════════════════════════════
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATIC_URL = 'static/'
 
-# ═══════════════════════════════════════════════════
-# DEFAULT PRIMARY KEY
-# ═══════════════════════════════════════════════════
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ═══════════════════════════════════════════════════
-# MCP 2026 PROTOCOL CONFIGURATION
-# ═══════════════════════════════════════════════════
-MCP_PROTOCOL_VERSION = '2026-07-28'
-MCP_PROTOCOL_VERSIONS_SUPPORTED = ['2026-07-28', '2026-07-28-draft']
-MCP_SERVER_NAME = 'mcp-stateless-django'
-MCP_SERVER_VERSION = '1.0.0'
-
+# ───────────────────────────────────────────────
+# MCP 2026-07-28 STATELESS CONFIGURATION
+# ───────────────────────────────────────────────
+MCP_PROTOCOL_VERSION = "2026-07-28"
+MCP_PROTOCOL_VERSIONS_SUPPORTED = ["2026-07-28", "2025-11-25"]
+MCP_SERVER_NAME = "ai-chat-bot-mcp"
+MCP_SERVER_VERSION = "1.0.0"
 MCP_SERVER_CAPABILITIES = {
-    "tools": {"listChanged": False},
-    "resources": {"listChanged": False, "subscribe": False},
+    "tools": {"listChanged": True},
+    "resources": {"listChanged": True, "subscribe": False},
+    "prompts": {"listChanged": False},
     "tasks": {},
-    "stateless": True,
 }
 
-# ═══════════════════════════════════════════════════
-# WEB SEARCH CONFIGURATION
-# ═══════════════════════════════════════════════════
-WEB_SEARCH_BACKEND = os.environ.get('WEB_SEARCH_BACKEND', 'mock')
-WEB_SEARCH_API_KEY = os.environ.get('WEB_SEARCH_API_KEY', '')
-WEB_SEARCH_MAX_RESULTS = int(os.environ.get('WEB_SEARCH_MAX_RESULTS', '5'))
+# Stateless Authentication: API Key via Authorization or X-Api-Key header
+MCP_API_KEY = os.getenv('MCP_API_KEY', 'mcp-dev-key-2026')
 
-# ═══════════════════════════════════════════════════
-# AUTHENTICATION
-# ═══════════════════════════════════════════════════
-MCP_API_KEY = os.environ.get('MCP_API_KEY', 'dev-api-key-change-me')
+# Web Search Service Configuration
+WEB_SEARCH_BACKEND = os.getenv('WEB_SEARCH_BACKEND', 'mock')
+WEB_SEARCH_API_KEY = os.getenv('WEB_SEARCH_API_KEY', '')
+WEB_SEARCH_MAX_RESULTS = int(os.getenv('WEB_SEARCH_MAX_RESULTS', '5'))
 
-# ═══════════════════════════════════════════════════
-# CACHE TTL
-# ═══════════════════════════════════════════════════
-MCP_LIST_CACHE_TTL = 300000   # 5 minutes in ms
-MCP_RESOURCE_CACHE_TTL = 600000  # 10 minutes in ms
+# Caching metadata for stateless list responses (milliseconds)
+MCP_LIST_CACHE_TTL = 300000
+MCP_RESOURCE_CACHE_TTL = 600000
