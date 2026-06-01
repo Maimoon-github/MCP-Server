@@ -19,5 +19,5 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('mcp/', include('apps.mcp_server.urls')),
+    path('mcp/', include('apps.stateless.urls')),
 ]
