@@ -89,10 +89,9 @@ MEDIA_URL = '/media/'
 # -------------------------------------------------------------------
 # File Storage – local filesystem (Django 4.2+)
 # -------------------------------------------------------------------
-STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
-}
+DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+# MEDIA_ROOT = BASE_DIR / "media"
+# MEDIA_URL = "/media/"
 
 # -------------------------------------------------------------------
 # MCP Protocol Configuration
