@@ -1,0 +1,48 @@
+services:
+
+  # ── MCP Hub ────────────────────────────────────────────────────────────────
+  mcp-hub:
+    build: .
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: local-mcp-hub
+      LOG_LEVEL: INFO
+      # Mount a local directory and grant access to it
+      ALLOWED_PATHS: /data
+      # Uncomment to enable SQLite (mount your db into /data)
+      # SQLITE_DB_PATH: /data/myapp.db
+      # Uncomment to connect to the postgres service below
+      # POSTGRES_URL: postgresql://mcp:mcp_local@postgres:5432/mcp_db
+      # POSTGRES_URL is auto-set when the 'postgres' profile is active
+      SHELL_ENABLED: "false"
+    volumes:
+      # Mount your working data directory into the container
+      - ./data:/data
+      # Mount .env for secrets (read-only)
+      - ./.env:/app/.env:ro
+    stdin_open: true   # required for stdio MCP transport
+    tty: false
+
+  # ── Optional: local PostgreSQL ─────────────────────────────────────────────
+  # Start with:  docker compose --profile postgres up
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    profiles:
+      - postgres
+    environment:
+      POSTGRES_USER: mcp
+      POSTGRES_PASSWORD: mcp_local
+      POSTGRES_DB: mcp_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mcp -d mcp_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

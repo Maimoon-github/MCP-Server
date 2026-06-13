@@ -1,0 +1,15 @@
+# Local MCP Hub – Python dependencies
+#
+# Install:  pip install -r requirements.txt
+#
+# Core (always required)
+mcp>=1.0.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Dashboard UI
+streamlit>=1.35.0
+pandas>=2.0.0
+
+# Optional – uncomment to enable the corresponding connector
+# psycopg2-binary>=2.9.0   # PostgreSQL connector

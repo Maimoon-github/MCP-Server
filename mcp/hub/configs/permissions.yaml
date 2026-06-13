@@ -1,0 +1,43 @@
+# permissions reference
+# ──────────────────────────────────────────────────────────────────────────────
+# This file documents the permission level assigned to each built-in tool.
+# It is for reference only – actual permissions are coded in
+# mcp_hub/permissions.py:load_default_permissions().
+#
+# Levels: NONE < READ < WRITE < EXECUTE < ADMIN
+# ──────────────────────────────────────────────────────────────────────────────
+
+filesystem:
+  read_file:      READ
+  list_directory: READ
+  search_files:   READ
+  get_file_info:  READ
+  write_file:     WRITE
+  move_file:      WRITE
+  delete_file:    WRITE
+
+sqlite:
+  sqlite_query:   READ
+  sqlite_tables:  READ
+  sqlite_schema:  READ
+  sqlite_execute: WRITE
+
+postgresql:
+  pg_query:       READ
+  pg_tables:      READ
+  pg_schema:      READ
+
+git:
+  git_status:     READ
+  git_log:        READ
+  git_diff:       READ
+  git_branch:     READ
+  git_add:        WRITE
+  git_commit:     EXECUTE
+
+shell:
+  run_command:    EXECUTE
+  list_env:       READ
+
+hub:
+  hub_info:       READ   # always available, no auth required

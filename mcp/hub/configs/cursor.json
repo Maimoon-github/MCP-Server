@@ -1,0 +1,14 @@
+{
+  "_instructions": [
+    "1. Open (or create): ~/.cursor/mcp.json",
+    "2. Merge the mcpServers block below into the existing JSON.",
+    "3. Replace the path in 'args' with the ABSOLUTE path to hub/main.py.",
+    "4. Reload the Cursor window."
+  ],
+  "mcpServers": {
+    "local-mcp-hub": {
+      "command": "python",
+      "args": ["/absolute/path/to/mcp/hub/main.py"]
+    }
+  }
+}
